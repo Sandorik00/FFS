@@ -59,22 +59,27 @@ public class Grid : MonoBehaviour {
 
 	public Node NodeFromWorldPoint (Vector3 worldPosition) {
 
-		float corX = Mathf.Abs(worldPosition.x - Mathf.RoundToInt(worldPosition.x));
-		float corY = Mathf.Abs(worldPosition.z - Mathf.RoundToInt(worldPosition.z));
+		Vector2 worldPos2 = new Vector2(worldPosition.x, worldPosition.z);
 
 
 		/* float percentX = (worldPosition.x + gridWorldSize.x / 2) / gridWorldSize.x;
 		float percentY = (worldPosition.z + gridWorldSize.y / 2) / gridWorldSize.y; */
 
+		worldPos2 = worldPos2 / gridWorldSize + new Vector2(0.5f, 0.5f);
+
+		/* float percentX = worldPosition.x / gridWorldSize.x + 0.5f;
+		float percentY = worldPosition.z / gridWorldSize.y + 0.5f; */
+
 		
+		float[] percent = new float[] {Mathf.Clamp01 (worldPos2.x), Mathf.Clamp01 (worldPos2.y)};
 		
-		
-		percentX = Mathf.Clamp01 (percentX);
-		percentY = Mathf.Clamp01 (percentY);
+		/* percentX = Mathf.Clamp01 (percentX);
+		percentY = Mathf.Clamp01 (percentY); */
 		//Тут было gridSize -1, хз зачем, но без него лучше
 		//Теперь тут снова gridSize -1, хз зачем, но с ним лучше
-		int x = Mathf.RoundToInt ((gridSizeX - 1) * percentX);
-		int y = Mathf.RoundToInt ((gridSizeY - 1) * percentY);
+		int x = Mathf.RoundToInt ((gridSizeX - 1) * percent[0]);
+		int y = Mathf.RoundToInt ((gridSizeY - 1) * percent[1]);
+
 
 		return grid[x, y];
 	}

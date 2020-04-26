@@ -47,7 +47,21 @@ public class PlayerMove : MonoBehaviour {
             Debug.Log("Ход передан");
             TurnBase.enemyTurn = true;
         }
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            divideVecOnVec();
+        }
             
+    }
+
+    void divideVecOnVec()
+    {
+        Vector2 vec1 = new Vector2(10, 10);
+        Vector2 vec2 = new Vector2(2, 2);
+
+        Vector2 vec3 = vec1 / vec2;
+        Debug.Log(vec3);
     }
 
 
