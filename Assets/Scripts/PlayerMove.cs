@@ -8,8 +8,7 @@ public class PlayerMove : MonoBehaviour {
     public int charMov;
     public Transform chara;
     Grid grid;
-    public bool gainmove;
-    public bool waitMove;
+    public bool gainmove, waitMove, waitMoveCheck;
     
 
     void Awake()
@@ -21,6 +20,7 @@ public class PlayerMove : MonoBehaviour {
     void Start () {
         gainmove = false;
         waitMove = true;
+        waitMoveCheck = true;
         TurnBase.enemyTurn = false;
 	}
 	
@@ -28,18 +28,18 @@ public class PlayerMove : MonoBehaviour {
 	void Update () {
         if (Input.GetKeyDown(KeyCode.Mouse0) && waitMove == true)
         {
-            Vector3 trt = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Debug.Log(trt);
+            Vector3 mousePoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             FindZone(chara.position, charMov);
             
         }
 
-        if (Input.GetKeyDown(KeyCode.Mouse1) && gainmove == true)
+        if (Input.GetKeyDown(KeyCode.Mouse1) && gainmove == true && waitMoveCheck == true)
         {
+            waitMoveCheck = false;
             waitMove = false;
-            gainmove = false;
-            Vector3 rrr = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            transition(rrr);
+            Vector3 targetPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Debug.Log(targetPoint);
+            transition(targetPoint);
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -57,6 +57,7 @@ public class PlayerMove : MonoBehaviour {
 
         List<Node> openSet = new List<Node>();
         List<Node> closedSet = new List<Node>();
+        
         openSet.Add(startNode);
         while(openSet.Count > 0)
         {
@@ -105,12 +106,12 @@ public class PlayerMove : MonoBehaviour {
     void leadPath(Node start, Node finish)
     {
         List<Node> path = new List<Node>();
-        Node currentNode = finish;
+        //Node currentNode = finish;
 
-        while (currentNode != start)
+        while (finish != start)
         {
-            path.Add(currentNode);
-            currentNode = currentNode.parent;
+            path.Add(finish);
+            finish = finish.parent;
         }
         path.Reverse();
 
@@ -118,15 +119,27 @@ public class PlayerMove : MonoBehaviour {
     }
 
 
-    void transition(Vector3 trr)
+    void transition(Vector3 targetPos)
     {
         
         Node startNode = grid.NodeFromWorldPoint(chara.position);
-        Node finishNode = grid.NodeFromWorldPoint(trr);
+        Node finishNode = grid.NodeFromWorldPoint(targetPos);
+        if (finishNode.parent == null)
+        {
+            Debug.Log("Не туда воюешь!");
+            waitMoveCheck = true;
+            return;
+        }
         leadPath(startNode, finishNode);
         chara.position = finishNode.worldPosition;
+        foreach(Node node in grid.moveField)
+        {
+            if(node.parent != null) node.parent = null;
+        }
         grid.moveField.Clear();
         grid.walkP.Clear();
+        waitMoveCheck = true;
+        gainmove = false;
         waitMove = true;
     }
 
